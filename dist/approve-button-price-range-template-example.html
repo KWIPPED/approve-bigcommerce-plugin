@@ -1,0 +1,31 @@
+<!-- EXAMPLE placed in templates > components > products > price-range.html -->
+{{#or price.retail_price_range.min.with_tax (if price.retail_price_range.min.without_tax)}}
+    <button
+        class="button button--primary"
+        approve-function="embedded_app"
+        approve-action="add_to_app"
+        approve-qty="1"
+        {{#if page_type '===' 'product' }}
+            approve-model="{{product.title}} "
+        {{else}}
+            approve-model="{{name}}"
+        {{/if}}
+        approve-item-type="new_product"
+        {{#if price.retail_price_range.min..with_tax }}
+            approve-price="{{price.retail_price_range.min..with_tax.value }}"
+        {{else}}
+            approve-price="{{price.retail_price_range.min..without_tax.value }}"
+        {{/if}}
+    >
+        {{#if price.retail_price_range.min.with_tax}}
+            As low as $<span approve-function="teaser_rate" approve-total="{{{json price.retail_price_range.min.with_tax.value }}}"></span>/mo Apply For Financing
+        {{else}}
+            As low as $<span approve-function="teaser_rate" approve-total="{{{json price.retail_price_range.min.without_tax.value }}}"></span>/mo Apply For Financing
+        {{/if}}
+    </button>
+    <script>
+        // console.log("PRICE WITHOUT TAX -> price", {{{json price }}});
+    </script> 
+
+{{/or}}
+
