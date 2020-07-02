@@ -1,0 +1,39 @@
+<!-- EXAMPLE placed in templates > components > products > price.html -->
+{{#if price.with_tax}}
+<button
+    class="button button--primary"
+    approve-function="embedded_app"
+    approve-action="add_to_app"
+    approve-qty="1"
+    {{#if page_type '===' 'product' }}
+        approve-model="{{product.title}} "
+    {{else}}
+        approve-model="{{name}}"
+    {{/if}}
+    approve-item-type="new_product"
+    approve-price="{{price.with_tax.value }}"
+>
+    As low as $<span approve-function="teaser_rate" approve-total="{{{json price.with_tax.value }}}"></span>/mo Apply For Financing
+</button>
+<script>console.log("PRICE WITHOUT TAX -> price", {{{json price }}});</script> 
+
+
+{{else if price.without_tax}}
+<button
+    class="button button--primary"
+    approve-function="embedded_app"
+    approve-action="add_to_app"
+    approve-qty="1"
+    {{#if page_type '===' 'product' }}
+        approve-model="{{product.title}} "
+    {{else}}
+        approve-model="{{name}}"
+    {{/if}}
+    approve-item-type="new_product"
+    approve-price="{{price.without_tax.value }}"
+>
+    As low as $<span approve-function="teaser_rate" approve-total="{{{json price.without_tax.value }}}"></span>/mo Apply For Financing
+</button>
+
+<script>console.log("PRICE WITHOUT TAX -> price", {{{json price }}});</script> 
+{{/if}}

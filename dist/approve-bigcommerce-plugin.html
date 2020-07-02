@@ -18,14 +18,27 @@
 
 	// setup bc_app object
 	kwipped_approve.bc_app = {};
-	kwipped_approve.bc_app.button_amt_threshold = 2000;
-	kwipped_approve.bc_app.cart_amt_threshold = 2000;
-	kwipped_approve.bc_app.product_info_wrap = ".productView";
-	kwipped_approve.bc_app.product_price_ele = ".productView [data-product-price-without-tax]:first";
-	kwipped_approve.bc_app.qty_ele = 'input[name="qty[]"]';
-	kwipped_approve.bc_app.qty_down_ele = 'button[data-action="dec"]';
-	kwipped_approve.bc_app.qty_up_ele = 'button[data-action="inc"]';
 
+	/**
+	 * CONFIG OPTIONS:
+	 * Set these values to the appropriate settings to interact between your page(s) and the finance button
+	 */
+	kwipped_approve.bc_app.config = {
+		
+		// the button_amt_threshold is the dollar amount at which a apply for finance button is shown
+		button_amt_threshold: 2000,
+		
+		// the cart_amt_threshold is the cart dollar amount total at which a apply for finance button is shown on the cart
+		// this is only applicible if you add a finance button to the cart
+		cart_amt_threshold: 2000,
+
+
+		product_info_wrap: ".productView",
+		product_price_ele: ".productView [data-product-price-without-tax]:first",
+		qty_ele: 'input[name="qty[]"]',
+		qty_down_ele: 'button[data-action="dec"]',
+		qty_up_ele: 'button[data-action="inc"]',
+	}
 	/* ================ APPROVE BigCommerce Helper Functions ================ */
 	/* ================ kwipped_approve.bc_app.init ================ */
 	kwipped_approve.bc_app.init = function () {
@@ -34,14 +47,14 @@
 		 *
 		 */
 
-		if ($(kwipped_approve.bc_app.product_info_wrap).length > 0
-			&& $(kwipped_approve.bc_app.qty_ele).length > 0 
+		if ($(kwipped_approve.bc_app.config.product_info_wrap).length > 0
+			&& $(kwipped_approve.bc_app.config.qty_ele).length > 0 
 		) {
 			/**
 			 * 
 			 */
-			var cur_qty_count = $(kwipped_approve.bc_app.qty_ele).val(),
-				approve_button_parent_ele = $(kwipped_approve.bc_app.qty_ele).closest(kwipped_approve.bc_app.product_info_wrap),
+			var cur_qty_count = $(kwipped_approve.bc_app.config.qty_ele).val(),
+				approve_button_parent_ele = $(kwipped_approve.bc_app.config.qty_ele).closest(kwipped_approve.bc_app.config.product_info_wrap),
 				product_approve_single_button = approve_button_parent_ele.find('[approve-function="embedded_app"][approve-action="add_to_app"][approve-price]'),
 				product_approve_items_button = approve_button_parent_ele.find('[approve-function="embedded_app"][approve-action="add_to_app"][approve-items]'),
 				approve_button_price_ele = approve_button_parent_ele.find('[data-product-price-without-tax]'),
@@ -50,7 +63,7 @@
 			/**
 			 * 
 			 */
-			$(kwipped_approve.bc_app.qty_down_ele).click(function () {
+			$(kwipped_approve.bc_app.config.qty_down_ele).click(function () {
 				cur_qty_count = (cur_qty_count > 1) ? Number(cur_qty_count) - 1 : 1;
 				if (product_approve_single_button.length > 0) {
 					product_approve_single_button.attr("approve-qty", cur_qty_count);
@@ -60,7 +73,7 @@
 			/**
 			 * 
 			 */
-			$(kwipped_approve.bc_app.qty_up_ele).click(function () {
+			$(kwipped_approve.bc_app.config.qty_up_ele).click(function () {
 				cur_qty_count = Number(cur_qty_count) + 1;
 				if (product_approve_single_button.length > 0) {
 					product_approve_single_button.attr("approve-qty", cur_qty_count);
@@ -70,7 +83,7 @@
 			/**
 			 * 
 			 */
-			$("body").on('DOMSubtreeModified', kwipped_approve.bc_app.product_price_ele, function(){
+			$("body").on('DOMSubtreeModified', kwipped_approve.bc_app.config.product_price_ele, function(){
 				approve_button_price = approve_button_price_ele.text().replace(/[^\d\.]+/g,"");
 				if (approve_button_price != "") {
 					if (product_approve_single_button.length > 0) {
@@ -105,7 +118,7 @@
 			} else {
 				this_grand_total += Number(this_ele.attr("approve-price")) * Number(this_ele.attr("approve-quantity"));
 			}
-			if (this_grand_total >= kwipped_approve.bc_app.options.button_amt_threshold) {
+			if (this_grand_total >= kwipped_approve.bc_app.config.button_amt_threshold) {
 				if (!this_ele.is(":visible")) {
 					this_ele.show();
 				}
