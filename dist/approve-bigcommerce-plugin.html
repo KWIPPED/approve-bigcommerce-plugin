@@ -4,6 +4,10 @@
 	 * Startup Variables:
 	 *     Set applicible values needed to connect the plugin to your KWIPPED APPROVE account
 	 *     If you do not have your account setup yet goto www.kwipped.com to get started
+	 * 
+	 * 
+	 * The way the platform is there is a lack of consistency to naming of variables and data access as well as layout and structure. You will have to have some experience with javascript/jquery/handlebars to be able to implement this code. 
+	 * Everything below are examples of potential ways to integrate the code to get the approve finance buttons working how you would like. 
 	 */
 	window.kwipped_approve = window.kwipped_approve || {};
 	/**
@@ -42,6 +46,11 @@
 	/* ================ APPROVE BigCommerce Helper Functions ================ */
 	/* ================ kwipped_approve.bc_app.init ================ */
 	kwipped_approve.bc_app.init = function () {
+		
+		/**
+		 * 
+		 */
+		kwipped_approve.bc_app.approve_button_show_hide();
 
 		/**
 		 *
@@ -50,6 +59,7 @@
 		if ($(kwipped_approve.bc_app.config.product_info_wrap).length > 0
 			&& $(kwipped_approve.bc_app.config.qty_ele).length > 0 
 		) {
+			
 			/**
 			 * 
 			 */
@@ -67,6 +77,7 @@
 				cur_qty_count = (cur_qty_count > 1) ? Number(cur_qty_count) - 1 : 1;
 				if (product_approve_single_button.length > 0) {
 					product_approve_single_button.attr("approve-qty", cur_qty_count);
+					kwipped_approve.bc_app.approve_button_show_hide(product_approve_single_button);
 				}
 			 });
 
@@ -77,6 +88,7 @@
 				cur_qty_count = Number(cur_qty_count) + 1;
 				if (product_approve_single_button.length > 0) {
 					product_approve_single_button.attr("approve-qty", cur_qty_count);
+					kwipped_approve.bc_app.approve_button_show_hide(product_approve_single_button);
 				}
 			});
 
@@ -89,15 +101,10 @@
 					if (product_approve_single_button.length > 0) {
 						product_approve_single_button.attr("approve-price", approve_button_price);
 						product_approve_single_button.find('[approve-function="teaser_rate"]').attr("approve-total", approve_button_price);
+						kwipped_approve.bc_app.approve_button_show_hide(product_approve_single_button);
 					}
-					kwipped_approve.bc_app.approve_button_show_hide(product_approve_button);
 				}
 			});
-
-			/**
-			 * 
-			 */
-			kwipped_approve.bc_app.approve_button_show_hide();
 		}
 	};
 
@@ -109,16 +116,16 @@
 				this_grand_total = 0,
 				this_total = 0;
 
-			if ($(this)[0].hasAttribute("approve-items")) {
+			if (this_ele[0].hasAttribute("approve-items")) {
 				var items = decodeURIComponent(JSON.parse($(this).attr("approve-items")));
 				for (var i in items) {
 					var this_item = items[i];
 					this_grand_total += Number(this_item.price) * Number(this_item.quantity);
 				}
 			} else {
-				this_grand_total += Number(this_ele.attr("approve-price")) * Number(this_ele.attr("approve-quantity"));
+				this_grand_total += Number(this_ele.attr("approve-price")) * Number(this_ele.attr("approve-qty"));
 			}
-			if (this_grand_total >= kwipped_approve.bc_app.config.button_amt_threshold) {
+			if (this_grand_total >= window.kwipped_approve.bc_app.config.button_amt_threshold) {
 				if (!this_ele.is(":visible")) {
 					this_ele.show();
 				}
