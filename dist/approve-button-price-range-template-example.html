@@ -11,16 +11,16 @@
             approve-model="{{name}}"
         {{/if}}
         approve-item-type="new_product"
-        {{#if price.retail_price_range.min..with_tax }}
-            approve-price="{{price.retail_price_range.min..with_tax.value }}"
+        {{#if price.retail_price_range.min.without_tax }}
+            approve-price="{{price.retail_price_range.min.without_tax.value }}"
         {{else}}
-            approve-price="{{price.retail_price_range.min..without_tax.value }}"
+            approve-price="{{price.retail_price_range.min.with_tax.value }}"
         {{/if}}
     >
-        {{#if price.retail_price_range.min.with_tax}}
-            As low as $<span approve-function="teaser_rate" approve-total="{{{json price.retail_price_range.min.with_tax.value }}}"></span>/mo Apply For Financing
+        {{#if price.retail_price_range.min.without_tax}}
+            As low as $<span approve-function="teaser_rate" approve-total="{{{price.retail_price_range.min.without_tax.value }}}"></span>/mo Apply For Financing
         {{else}}
-            As low as $<span approve-function="teaser_rate" approve-total="{{{json price.retail_price_range.min.without_tax.value }}}"></span>/mo Apply For Financing
+            As low as $<span approve-function="teaser_rate" approve-total="{{{price.retail_price_range.min.with_tax.value }}}"></span>/mo Apply For Financing
         {{/if}}
     </button>
     <script>

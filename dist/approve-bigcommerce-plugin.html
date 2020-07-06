@@ -36,33 +36,34 @@
 		// this is only applicible if you add a finance button to the cart
 		cart_amt_threshold: 2000,
 
-
+		// the product_info_wrap is to be set to product view wrapping element that contians both the APPROVE finance button as well as the qty and price elements. 
 		product_info_wrap: ".productView",
+		
+		// the product_price_ele is to be set to the price element jquery ID or class tag to retrieve the base price on a single APPROVE finance button product page. 
 		product_price_ele: ".productView [data-product-price-without-tax]:first",
+		
+		// qty_ele Set to the quantity element jQuery class or ID tag that contains the qty increase/decrease selectors. 
 		qty_ele: 'input[name="qty[]"]',
+		
+		// qty_down_ele Set to quantity down click element jquery class tag to set the current quantity for the APPROVE finance button. 
 		qty_down_ele: 'button[data-action="dec"]',
+		
+		// qty_up_ele  Set to quantity up click element jquery class tag to set the current quantity for the APPROVE finance button.  
 		qty_up_ele: 'button[data-action="inc"]',
 	}
 	/* ================ APPROVE BigCommerce Helper Functions ================ */
 	/* ================ kwipped_approve.bc_app.init ================ */
 	kwipped_approve.bc_app.init = function () {
 		
-		/**
-		 * 
-		 */
+		// approve_button_show_hide() will show or hide any APPROVE finance buttons based on the threshold set
 		kwipped_approve.bc_app.approve_button_show_hide();
 
-		/**
-		 *
-		 */
-
+		// check for qty_ele and product_info_wrap as this will be the main product info page
 		if ($(kwipped_approve.bc_app.config.product_info_wrap).length > 0
 			&& $(kwipped_approve.bc_app.config.qty_ele).length > 0 
 		) {
 			
-			/**
-			 * 
-			 */
+			// set basic variables for use
 			var cur_qty_count = $(kwipped_approve.bc_app.config.qty_ele).val(),
 				approve_button_parent_ele = $(kwipped_approve.bc_app.config.qty_ele).closest(kwipped_approve.bc_app.config.product_info_wrap),
 				product_approve_single_button = approve_button_parent_ele.find('[approve-function="embedded_app"][approve-action="add_to_app"][approve-price]'),
@@ -70,51 +71,58 @@
 				approve_button_price_ele = approve_button_parent_ele.find('[data-product-price-without-tax]'),
 				approve_button_price = 0;
 
-			/**
-			 * 
-			 */
+			// register click handler for the qty down button
 			$(kwipped_approve.bc_app.config.qty_down_ele).click(function () {
 				cur_qty_count = (cur_qty_count > 1) ? Number(cur_qty_count) - 1 : 1;
 				if (product_approve_single_button.length > 0) {
+					// IF product_approve_single_button is on page, change qty to match
 					product_approve_single_button.attr("approve-qty", cur_qty_count);
+					// check and set if button should be shown or hidden
 					kwipped_approve.bc_app.approve_button_show_hide(product_approve_single_button);
 				}
 			 });
 
-			/**
-			 * 
-			 */
+			// register click handler for the qty up button
 			$(kwipped_approve.bc_app.config.qty_up_ele).click(function () {
 				cur_qty_count = Number(cur_qty_count) + 1;
 				if (product_approve_single_button.length > 0) {
+					// IF product_approve_single_button is on page, change qty to match
 					product_approve_single_button.attr("approve-qty", cur_qty_count);
+					// check and set if button should be shown or hidden
 					kwipped_approve.bc_app.approve_button_show_hide(product_approve_single_button);
 				}
 			});
 
-			/**
-			 * 
-			 */
+			// register a 'content modified' handler for the price element IF the price changes due to option selection. 
+			// THIS is similar to a MutationObserver, but is a bit more streamlined for use with the jQuery processes.
 			$("body").on('DOMSubtreeModified', kwipped_approve.bc_app.config.product_price_ele, function(){
+				// clean price to not contain any $ or ',' 
 				approve_button_price = approve_button_price_ele.text().replace(/[^\d\.]+/g,"");
-				if (approve_button_price != "") {
-					if (product_approve_single_button.length > 0) {
-						product_approve_single_button.attr("approve-price", approve_button_price);
-						product_approve_single_button.find('[approve-function="teaser_rate"]').attr("approve-total", approve_button_price);
-						kwipped_approve.bc_app.approve_button_show_hide(product_approve_single_button);
-					}
+				// IF price != "" then set the button price. 
+				if (approve_button_price != ""
+					&& product_approve_single_button.length > 0
+				) {
+					// IF product_approve_single_button is on page, change approve-price to match
+					product_approve_single_button.attr("approve-price", approve_button_price);
+					// check for and update any child teaser approve-total contained in this element
+					product_approve_single_button.find('[approve-function="teaser_rate"]').attr("approve-total", approve_button_price);
+					// check and set if button should be shown or hidden
+					kwipped_approve.bc_app.approve_button_show_hide(product_approve_single_button);
 				}
 			});
 		}
 	};
 
 	/* ================ kwipped_approve.bc_app.approve_button_show_hide ================ */
+	// this function will check to see if the button should be shown/hidden based on the threshold amount(s) 
+	// IF run without specifying element it will check all APPROVE finance buttons on the page
 	kwipped_approve.bc_app.approve_button_show_hide = function (ele) {
 		var ele = ele || $('[approve-function="embedded_app"][approve-action="add_to_app"][approve-price], [approve-function="embedded_app"][approve-action="add_to_app"][approve-items]');
 		ele.each(function (){
 			var this_ele = $(this),
 				this_grand_total = 0,
-				this_total = 0;
+				this_total = 0,
+				approve_teaser_ele = this_ele.find("[approve-function='approve-teaser']");
 
 			if (this_ele[0].hasAttribute("approve-items")) {
 				var items = decodeURIComponent(JSON.parse($(this).attr("approve-items")));
@@ -126,6 +134,9 @@
 				this_grand_total += Number(this_ele.attr("approve-price")) * Number(this_ele.attr("approve-qty"));
 			}
 			if (this_grand_total >= window.kwipped_approve.bc_app.config.button_amt_threshold) {
+				if (approve_teaser_ele.length > 0) {
+					approve_teaser_ele.attr("approve-total", this_grand_total);
+				}
 				if (!this_ele.is(":visible")) {
 					this_ele.show();
 				}
@@ -136,12 +147,14 @@
 	};
 	
 	/* ================ kwipped_approve.bc_app.approve_button_add_items ================ */
+	// this function will allow you to add items to a button that uses the attrib approve-items
 	kwipped_approve.bc_app.approve_button_add_items = function (ele, items) {
 		ele.attr("approve-items", encodeURIComponent(JSON.stringify(items)));
 		kwipped_approve.bc_app.approve_button_show_hide(ele);
 	};
 	
 	/* ================ kwipped_approve.bc_app.approve_button_add_item ================ */
+	// this function will allow you to add a single javascript  object item to a button that uses the attrib approve-items
 	kwipped_approve.bc_app.approve_button_add_item = function (ele, item) {
 		var items = decodeURIComponent(JSON.parse(ele.attr("approve-items")));
 		items.push(item);
@@ -150,6 +163,7 @@
 	};
 
 	/* ================ kwipped_approve.bc_app.approve_button_update_items ================ */
+	// this function will allow you to update item(s) on a button that uses the attrib approve-items
 	kwipped_approve.bc_app.approve_button_update_items = function (ele, item, index) {
 		var index = index | 0,
 			items = decodeURIComponent(JSON.parse(ele.attr("approve-items")));
@@ -158,8 +172,8 @@
 		kwipped_approve.bc_app.approve_button_show_hide(ele);
 	};
 
-
 	/* ================ kwipped_approve_jqcheck ================ */
+	// this function will check to see if the button should be shown/hidden based on the threshold amount(s) 
 	var kwipped_approve_jqcheck = function (){
 		if(window.jQuery)  {
 			kwipped_approve.bc_app.init();
