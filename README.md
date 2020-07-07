@@ -63,7 +63,7 @@ The steps needed to integrate with the shopify theme are summed up below.
 1. <a href="#step1">Add the contents of `approve-bigcommerce-plugin.html` into BigCommerce</a>
 2. <a href="#step2">Retrieve your APPROVE code snippet</a>
 5. <a href="#step3">Place the APPROVE finance button code in the BigCommerce cart and product page(s).</a>
-3. <a href="#step4">Edit the `approveOpt` settings as needed</a>
+3. <a href="#step4">Edit the `kwipped_approve.bc_app.config` settings as needed</a>
 6. <a href="#step5">Add a jquery or javascript trigger if needed.</a>
 7. <a href="#step6">Done.</a>
 
