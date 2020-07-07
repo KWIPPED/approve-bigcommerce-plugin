@@ -125,7 +125,7 @@
 				approve_teaser_ele = this_ele.find("[approve-function='approve-teaser']");
 
 			if (this_ele[0].hasAttribute("approve-items")) {
-				var items = decodeURIComponent(JSON.parse($(this).attr("approve-items")));
+				var items = decodeURIComponent(JSON.parse(this_ele.attr("approve-items")));
 				for (var i in items) {
 					var this_item = items[i];
 					this_grand_total += Number(this_item.price) * Number(this_item.quantity);
