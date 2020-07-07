@@ -1,7 +1,3 @@
-# approve-bigcommerce-plugin
-APPROVE BigCommerce Integration Plugin
-
-
 # APPROVE for BigCommerce
 
 
