@@ -171,10 +171,27 @@ Place the APPROVE finance product button snippet code found in the file <a targe
 
 ### STEP 4: Edit the `config` settings as needed
 
-Set the appropriate jquery element tags needed in the javascript object `kwipped_approve.bc_app.config`
+#### Set all appropriate settings and jQuery element tags in the installed script
 
 To do this you will need to edit the Script added in the first step under `Admin Dashboard -> Storefront -> Script Manager`
 
+<br />
+
+#### Set your `approveid` in the installed script
+
+Locate the following section in this script
+
+```javascript
+	kwipped_approve.approve_id = "your+approve+id+goes+here";
+```
+
+Replace `your+approve+id+goes+here` with your `approveid`
+
+To retrieve your `approveid`,  login to your account and go to **APPROVE Settings > Web Integration > General**. 
+
+<br />
+
+#### Set the appropriate jquery element tags needed in the javascript object `kwipped_approve.bc_app.config`
 Locate the following section in this script:
 
 
