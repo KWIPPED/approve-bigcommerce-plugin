@@ -18,7 +18,7 @@
 	 *      in the plugin configurator in your KWIPPED APPROVE account
 	 */
 	kwipped_approve.url = "https://www.kwipped.com";
-	kwipped_approve.approve_id = "your+approve+id+goes+here";
+	kwipped_approve.approve_id = "eyJpdiI6IlhQR0FoUzdMQTlFZXhqZ0ROTjNQN2c9PSIsInZhbHVlIjoiQVpkUG5qVngzRTREaDQ2dklhR1pQdz09IiwibWFjIjoiOWVlMmM0ZGIyZTM2OThiMzg4NzZjNjQ3ODU2OTAyZmNiMzdmZmJkMjMzZjFmNGM4YTIzZjhiOTNmZmVjZjRkNiJ9";
 
 	// setup bc_app object
 	kwipped_approve.bc_app = {};
@@ -30,11 +30,11 @@
 	kwipped_approve.bc_app.config = {
 		
 		// the button_amt_threshold is the dollar amount at which a apply for finance button is shown
-		button_amt_threshold: 2000,
+		button_amt_threshold: 1400,
 		
 		// the cart_amt_threshold is the cart dollar amount total at which a apply for finance button is shown on the cart
 		// this is only applicible if you add a finance button to the cart
-		cart_amt_threshold: 2000,
+		cart_amt_threshold: 1400,
 
 		// the product_info_wrap is to be set to product view wrapping element that contians both the APPROVE finance button as well as the qty and price elements. 
 		product_info_wrap: ".productView",
@@ -80,6 +80,15 @@
 					// check and set if button should be shown or hidden
 					kwipped_approve.bc_app.approve_button_show_hide(product_approve_single_button);
 				}
+                if (product_approve_items_button.length > 0) {
+                    var this_button_items = JSON.parse(decodeURIComponent(product_approve_items_button.attr("approve-items")));
+                    for (var i in this_button_items) {
+                        this_button_items[i].qty = cur_qty_count;   
+                        kwipped_approve.bc_app.approve_button_update_items(product_approve_items_button, this_button_items[i], i);
+                    }
+                    kwipped_approve.bc_app.approve_button_show_hide(product_approve_items_button);
+                    // product_approve_items_button
+                }
 			 });
 
 			// register click handler for the qty up button
@@ -91,6 +100,16 @@
 					// check and set if button should be shown or hidden
 					kwipped_approve.bc_app.approve_button_show_hide(product_approve_single_button);
 				}
+                if (product_approve_items_button.length > 0) {
+                    var this_button_items = JSON.parse(decodeURIComponent(product_approve_items_button.attr("approve-items")));
+                    for (var i in this_button_items) {
+                        this_button_items[i].qty = cur_qty_count;   
+                        kwipped_approve.bc_app.approve_button_update_items(product_approve_items_button, this_button_items[i], i);
+                    }
+                    kwipped_approve.bc_app.approve_button_show_hide(product_approve_items_button);
+                    // product_approve_items_button
+                }
+
 			});
 
 			// register a 'content modified' handler for the price element IF the price changes due to option selection. 
@@ -125,13 +144,14 @@
 				approve_teaser_ele = this_ele.find("[approve-function='approve-teaser']");
 
 			if (this_ele[0].hasAttribute("approve-items")) {
-				var items = decodeURIComponent(JSON.parse(this_ele.attr("approve-items")));
+				var items = JSON.parse(decodeURIComponent(this_ele.attr("approve-items")));
 				for (var i in items) {
 					var this_item = items[i];
-					this_grand_total += Number(this_item.price) * Number(this_item.quantity);
+					this_grand_total += Number(this_item.price) * Number(this_item.qty);
 				}
 			} else {
 				this_grand_total += Number(this_ele.attr("approve-price")) * Number(this_ele.attr("approve-qty"));
+
 			}
 			if (this_grand_total >= window.kwipped_approve.bc_app.config.button_amt_threshold) {
 				if (approve_teaser_ele.length > 0) {
@@ -149,16 +169,22 @@
 	/* ================ kwipped_approve.bc_app.approve_button_add_items ================ */
 	// this function will allow you to add items to a button that uses the attrib approve-items
 	kwipped_approve.bc_app.approve_button_add_items = function (ele, items) {
-		ele.attr("approve-items", encodeURIComponent(JSON.stringify(items)));
+		for (var e in items) {
+			items[e].model = encodeURIComponent(items[e].model);
+		}
+		ele.attr("approve-items", JSON.stringify(items));
 		kwipped_approve.bc_app.approve_button_show_hide(ele);
 	};
 	
 	/* ================ kwipped_approve.bc_app.approve_button_add_item ================ */
 	// this function will allow you to add a single javascript  object item to a button that uses the attrib approve-items
 	kwipped_approve.bc_app.approve_button_add_item = function (ele, item) {
-		var items = decodeURIComponent(JSON.parse(ele.attr("approve-items")));
+		var items = JSON.parse(decodeURIComponent(ele.attr("approve-items")));
 		items.push(item);
-		ele.attr("approve-items", encodeURIComponent(JSON.stringify(items)));
+		for (var e in items) {
+			items[e].model = encodeURIComponent(items[e].model);
+		}
+		ele.attr("approve-items", JSON.stringify(items));
 		kwipped_approve.bc_app.approve_button_show_hide(ele);
 	};
 
@@ -166,9 +192,12 @@
 	// this function will allow you to update item(s) on a button that uses the attrib approve-items
 	kwipped_approve.bc_app.approve_button_update_items = function (ele, item, index) {
 		var index = index | 0,
-			items = decodeURIComponent(JSON.parse(ele.attr("approve-items")));
+			items = JSON.parse(decodeURIComponent(ele.attr("approve-items")));
 		items[index] = item;
-		ele.attr("approve-items", encodeURIComponent(JSON.stringify(items)));
+		for (var e in items) {
+			items[e].model = encodeURIComponent(items[e].model);
+		}
+		ele.attr("approve-items", JSON.stringify(items));
 		kwipped_approve.bc_app.approve_button_show_hide(ele);
 	};
 
@@ -188,5 +217,5 @@
 		}
 	};
 	kwipped_approve_jqcheck();
-	</script>
-	<script src="https://api.kwipped.com/approve/plugin/2.0/approve_plugin_loader.php"></script>
+</script>
+<script src="https://api.kwipped.com/approve/plugin/2.0/approve_plugin_loader.php"></script>
