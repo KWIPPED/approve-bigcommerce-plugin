@@ -55,9 +55,6 @@
 	/* ================ kwipped_approve.bc_app.init ================ */
 	kwipped_approve.bc_app.init = function () {
 		
-		// approve_button_show_hide() will show or hide any APPROVE finance buttons based on the threshold set
-		kwipped_approve.bc_app.approve_button_show_hide();
-
 		// check for qty_ele and product_info_wrap as this will be the main product info page
 		if ($(kwipped_approve.bc_app.config.product_info_wrap).length > 0
 			&& $(kwipped_approve.bc_app.config.qty_ele).length > 0 
@@ -130,18 +127,22 @@
 				}
 			});
 		}
+
+		// approve_button_show_hide() will show or hide any APPROVE finance buttons based on the threshold set
+		kwipped_approve.bc_app.approve_button_show_hide();
+
 	};
 
 	/* ================ kwipped_approve.bc_app.approve_button_show_hide ================ */
 	// this function will check to see if the button should be shown/hidden based on the threshold amount(s) 
 	// IF run without specifying element it will check all APPROVE finance buttons on the page
 	kwipped_approve.bc_app.approve_button_show_hide = function (ele) {
-		var ele = ele || $('[approve-function="embedded_app"][approve-action="add_to_app"][approve-price], [approve-function="embedded_app"][approve-action="add_to_app"][approve-items]');
+		var ele = ele || $('[approve-function="embedded_app"][approve-action="add_to_app"]');
 		ele.each(function (){
 			var this_ele = $(this),
 				this_grand_total = 0,
 				this_total = 0,
-				approve_teaser_ele = this_ele.find("[approve-function='approve-teaser']");
+				approve_teaser_ele = this_ele.find("[approve-function='teaser_rate']");
 
 			if (this_ele[0].hasAttribute("approve-items")) {
 				var items = JSON.parse(decodeURIComponent(this_ele.attr("approve-items")));
@@ -149,18 +150,24 @@
 					var this_item = items[i];
 					this_grand_total += Number(this_item.price) * Number(this_item.qty);
 				}
-			} else {
+			} else if (this_ele[0].hasAttribute("approve-price")) {
 				this_grand_total += Number(this_ele.attr("approve-price")) * Number(this_ele.attr("approve-qty"));
 
-			}
+			} 
+			console.log("GRAND TOTAL => ", this_grand_total, window.kwipped_approve.bc_app.config.button_amt_threshold);
 			if (this_grand_total >= window.kwipped_approve.bc_app.config.button_amt_threshold) {
+				console.log("this_grand_total >= button_amt_threshold");
 				if (approve_teaser_ele.length > 0) {
 					approve_teaser_ele.attr("approve-total", this_grand_total);
+					approve_teaser_ele.show();
 				}
 				if (!this_ele.is(":visible")) {
 					this_ele.show();
 				}
 			} else {
+				if (approve_teaser_ele.length > 0) {
+					approve_teaser_ele.hide();
+				}
 				this_ele.hide();
 			}
 		});
@@ -201,10 +208,19 @@
 		kwipped_approve.bc_app.approve_button_show_hide(ele);
 	};
 
+	kwipped_approve.load_with_core = function () {
+		if (window.kwipped_approve.core) {
+			kwipped_approve.bc_app.init();
+		} else {
+			setTimeout(function () {
+				window.kwipped_approve.load_with_core();
+			}, 500);
+		}
+	};
 	/* ================ kwipped_approve_jqcheck ================ */
 	// this function will check to see if the button should be shown/hidden based on the threshold amount(s) 
 	var kwipped_approve_jqcheck = function (){
-		if(window.jQuery)  {
+		if(window.jQuery && window.kwipped_approve.core)  {
 			kwipped_approve.bc_app.init();
 		} else {   
 			var script = document.createElement('script'); 
@@ -212,7 +228,7 @@
 			script.type = 'text/javascript';
 			script.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js";
 			script.onload = function () {
-				kwipped_approve.bc_app.init();
+				window.kwipped_approve.load_with_core();
 			}
 		}
 	};
