@@ -9,7 +9,7 @@
             var approve_cart_button = $("#approve-cart-button");
             {{#each cart.items}}
                 {{#if type '!=' 'GiftCertificate'}}
-                    window.kwipped_approve.bc_app.approve_button_add_item(approve_cart_button, {"name": "{{#if brand.name}}{{encodeURI brand.name}} {{/if}}{{encodeURI name}}", "price": "{{#if price_discounted}}{{price_discounted.value}}{{/else}}{{price.value}}{{/if}}", "quantity":"{{quantity}}" , "type": "new_product"})
+                    window.kwipped_approve.bc_app.approve_button_add_item(approve_cart_button, {"name": "{{#if brand.name}}{{encodeURI brand.name}} {{/if}}{{encodeURI name}}", "price": "{{#if price_discounted}}{{price_discounted.value}}{{else}}{{price.value}}{{/if}}", "quantity":"{{quantity}}" , "type": "new_product"})
                 {{/if}}
             {{/each}}
         {{/or}}
